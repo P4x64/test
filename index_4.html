@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>“罗曰”全球董事会专属加密终端</title>
+    <script src="https://cdn.staticfile.net/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body { font-family: 'PingFang SC', sans-serif; background-color: #f4f5f7; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { background-color: #fff; max-width: 800px; width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); padding: 40px; }
+        h1 { text-align: center; color: #2c3e50; }
+        textarea { width: 100%; height: 120px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; background-color: #fafafa; margin: 10px 0; }
+        .buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; color: #fff; font-weight: bold; }
+        .btn-encode { background-color: #e67e22; } .btn-decode { background-color: #27ae60; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>“罗曰”全球董事会终端</h1>
+    <textarea id="inputText" placeholder=">_ 请粘贴“罗曰：”或“佛曰：”开头的密文..."></textarea>
+    <div class="buttons">
+        <button class="btn-encode" onclick="handleEncode()">加密(罗曰)</button>
+        <button class="btn-decode" onclick="handleDecode()">解密(罗曰/佛曰)</button>
+    </div>
+    <textarea id="outputText" placeholder=">_ 结果将在此处显示..." readonly></textarea>
+</div>
+
+<script>
+    // 罗曰算法
+    var luo_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var luo_dict = "阿弥陀佛观世音菩萨大势至地藏王文殊普贤如来金刚般若波罗蜜多心经法华楞严清净慈悲喜舍因果轮回涅槃善恶业报无明烦恼提缘起性空界众生宝德";
+
+    function handleEncode() {
+        var input = document.getElementById('inputText').value;
+        var b64 = btoa(unescape(encodeURIComponent(input)));
+        var res = "罗曰：";
+        for (var i = 0; i < b64.length; i++) {
+            var idx = luo_chars.indexOf(b64[i]);
+            if (idx !== -1) res += luo_dict[idx];
+        }
+        document.getElementById('outputText').value = res;
+    }
+
+    // 佛曰兼容算法 (核心算法已内嵌)
+    var fo_tudou = ['滅','苦','婆','娑','耶','陀','跋','多','漫','都','殿','悉','夜','爍','帝','吉','利','阿','無','南','那','怛','喝','羯','勝','摩','伽','謹','波','者','穆','僧','室','藝','尼','瑟','地','彌','菩','提','蘇','醯','盧','呼','舍','佛','參','沙','伊','隸','麼','遮','闍','度','蒙','孕','薩','夷','迦','他','姪','豆','特','逝','朋','輸','楞','栗','寫','數','曳','諦','羅','曰','咒','即','密','若','般','故','不','實','真','訶','切','一','除','能','等','是','上','明','大','神','知','三','藐','耨','得','依','諸','世','槃','涅','竟','究','想','夢','倒','顛','離','遠','怖','恐','有','礙','心','所','以','亦','智','道','。','集','盡','死','老','至'];
+    var fo_bytemark = ['冥','奢','梵','呐','俱','哆','怯','諳','罰','侄','缽','皤'];
+
+    function handleDecode() {
+        var input = document.getElementById('inputText').value.trim();
+        var out = document.getElementById('outputText');
+        if (input.startsWith("罗曰：")) {
+            var cipher = input.substring(3);
+            var b64 = "";
+            for (var i = 0; i < cipher.length; i++) {
+                var idx = luo_dict.indexOf(cipher[i]);
+                if (idx !== -1) b64 += luo_chars[idx];
+            }
+            out.value = decodeURIComponent(escape(atob(b64)));
+        } else if (input.startsWith("佛曰：")) {
+            try {
+                var cipher = input.substring(3);
+                var data = [];
+                for (var i = 0; i < cipher.length; i++) {
+                    if (fo_bytemark.indexOf(cipher[i]) > -1) data.push(fo_tudou.indexOf(cipher[++i]) + 128);
+                    else data.push(fo_tudou.indexOf(cipher[i]));
+                }
+                var key = CryptoJS.enc.Utf8.parse('XDXDtudou@KeyFansClub^_^Encode!!');
+                var iv = CryptoJS.enc.Utf8.parse('Potato@Key@_@=_=');
+                var bytes = CryptoJS.lib.WordArray.create(data);
+                var decrypted = CryptoJS.AES.decrypt({ ciphertext: bytes }, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+                out.value = decrypted.toString(CryptoJS.enc.Utf16LE);
+            } catch (e) { out.value = "解析失败：该密文协议不匹配。"; }
+        }
+    }
+</script>
+</body>
+</html>
