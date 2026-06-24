@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“罗曰”三星⭐⭐⭐全球董事会交流群专用工具</title>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <script src="https://cdn.staticfile.net/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.staticfile.net/crypto-js/4.1.1/enc-utf16.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f4f5f7; 
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            max-width: 800px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+            padding: 40px 30px;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 15px;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s;
+            background-color: #fafafa;
+            color: #333;
+        }
+        textarea:focus {
+            border-color: #3498db;
+            background-color: #fff;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+        }
+        textarea::placeholder {
+            color: #999;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.1s, opacity 0.3s;
+            font-weight: bold;
+        }
+        button:active { transform: scale(0.96); }
+        button:hover { opacity: 0.85; }
+        
+        .btn-encode { background-color: #e67e22; } 
+        .btn-decode { background-color: #27ae60; } 
+        .btn-copy { background-color: #2980b9; } 
+        .btn-clear { background-color: #95a5a6; } 
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #bdc3c7;
+            text-align: center;
+            line-height: 1.8;
+        }
+        #busuanzi_value_site_pv {
+            color: #e67e22;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 0 3px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>“罗曰”三星⭐⭐⭐全球董事会交流群专用工具</h1>
+    <div class="subtitle">【高度机密 · 内部专享 · 兼容经典佛曰协议】</div>
+
+    <textarea id="inputText" placeholder=">_ 请在此输入最高机密原文，或粘贴带有“罗曰：”或“佛曰：”的加密指令..."></textarea>
+
+    <div class="buttons">
+        <button class="btn-encode" onclick="encodeText()">加密混淆 (生成罗曰)</button>
+        <button class="btn-decode" onclick="decodeText()">解密授权 (还原明文)</button>
+    </div>
+    
+    <div class="buttons" style="margin-top: 0;">
+        <button class="btn-copy" onclick="copyText()">复制输出结果</button>
+        <button class="btn-clear" onclick="clearText()">清空操作台</button>
+    </div>
+
+    <textarea id="outputText" placeholder=">_ 董事会加密/解密结果将在此处显示..." readonly></textarea>
+    
+    <div class="footer">
+        * 警告：本终端采用“罗氏”专属特制核心字库进行高强度混淆加密。<br>
+        * 协议通融：已成功加载开源底层字典及硬编码秘钥，原生级解析“佛曰”协议。<br>
+        * 纯本地脱机运算，防拦截、防嗅探，请妥善保管解密环境。<br>
+        <span id="busuanzi_container_site_pv" style="display:none;">
+            🔒 董事会密级终端已被秘密调阅 <span id="busuanzi_value_site_pv"></span> 次
+        </span>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 第一部分：我们的专属“罗曰”基础算法
+    // ==========================================
+    const luo_b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    const luo_dict = "阿弥陀佛观世音菩萨大势至地藏王文殊普贤如来金刚般若波罗蜜多心经法华楞严清净慈悲喜舍因果轮回涅槃善恶业报无明烦恼提缘起性空界众生宝德";
+    const PREFIX_LUO = "罗曰：";
+
+    function encodeLuo(text) {
+        let b64 = btoa(unescape(encodeURIComponent(text)));
+        let result = PREFIX_LUO;
+        for (let i = 0; i < b64.length; i++) {
+            let index = luo_b64chars.indexOf(b64[i]);
+            if (index !== -1) {
+                result += luo_dict[index];
+            }
+        }
+        return result;
+    }
+
+    function decodeLuo(text) {
+        let b64 = "";
+        for (let i = 0; i < text.length; i++) {
+            let index = luo_dict.indexOf(text[i]);
+            if (index !== -1) {
+                b64 += luo_b64chars[index];
+            }
+        }
+        if (!b64) return null;
+        return decodeURIComponent(escape(atob(b64)));
+    }
+
+
+    // ==========================================
+    // 第二部分：根据 GitHub 开源源码逆向复刻的原版“佛曰”算法
+    // ==========================================
+    const PREFIX_FO = "佛曰：";
+    const fo_tudou = ['滅', '苦', '婆', '娑', '耶', '陀', '跋', '多', '漫', '都', '殿', '悉', '夜', '爍', '帝', '吉', '利', '阿', '無', '南', '那', '怛', '喝', '羯', '勝', '摩', '伽', '謹', '波', '者', '穆', '僧', '室', '藝', '尼', '瑟', '地', '彌', '菩', '提', '蘇', '醯', '盧', '呼', '舍', '佛', '參', '沙', '伊', '隸', '麼', '遮', '闍', '度', '蒙', '孕', '薩', '夷', '迦', '他', '姪', '豆', '特', '逝', '
